@@ -5,10 +5,12 @@ from flask_mysqldb import MySQL
 app = Flask(__name__, template_folder='templates')
 
 #TODO: do not hardcode sql info
-app.config['MYSQL_HOST'] = "localhost"
-app.config['MYSQL_USER'] = "root"
-app.config['MYSQL_PASSWORD'] = ""
-app.config['MYSQL_DB'] = "blabbr"
+app.config['MYSQL_HOST'] = "oceanus.cse.buffalo.edu"
+app.config['MYSQL_USER'] = "anprimos"
+app.config['MYSQL_PASSWORD'] = "50184265"
+app.config['MYSQL_PORT'] = 3306
+app.config['MYSQL_DB'] = "cse442_2022_spring_team_x_db"
+
 
 mysql = MySQL(app)
 
@@ -27,7 +29,7 @@ def create_user():
     mysql.connection.commit()
     cur.close()
     return 'User successfully added!'
-    
+
 
 if __name__ == '__main__':
     app.run(debug=True)
