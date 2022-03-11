@@ -2,15 +2,18 @@ from flask import Flask, render_template, request
 
 from flask_mysqldb import MySQL
 
+
+def mySQL_Connect(app):
+    
+    app.config['MYSQL_HOST'] = "oceanus.cse.buffalo.edu"
+    app.config['MYSQL_USER'] = "anprimos"
+    app.config['MYSQL_PASSWORD'] = "50184265"
+    app.config['MYSQL_PORT'] = 3306
+    app.config['MYSQL_DB'] = "cse442_2022_spring_team_x_db"
+    return app
+
 app = Flask(__name__, template_folder='templates')
-
-#TODO: do not hardcode sql info
-app.config['MYSQL_HOST'] = "oceanus.cse.buffalo.edu"
-app.config['MYSQL_USER'] = "anprimos"
-app.config['MYSQL_PASSWORD'] = "50184265"
-app.config['MYSQL_PORT'] = 3306
-app.config['MYSQL_DB'] = "cse442_2022_spring_team_x_db"
-
+app = mySQL_Connect(app)
 
 mysql = MySQL(app)
 
