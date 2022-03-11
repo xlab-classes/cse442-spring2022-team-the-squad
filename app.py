@@ -15,6 +15,7 @@ def mySQL_Connect(app):
 app = Flask(__name__, template_folder='templates')
 app = mySQL_Connect(app)
 
+
 mysql = MySQL(app)
 
 @app.route('/', methods=['GET'])
