@@ -9,6 +9,11 @@ h1 {
     font-size: 32px;
 }
 
+h4 {
+    text-align: center;
+    color: green;
+}
+
 .login {
     display: block;
     margin: auto;
@@ -21,14 +26,38 @@ h1 {
 
 }
 
+.register {
+    display: block;
+    margin: auto;
+    margin-top: 50px;
+    width: 400px;
+    height: 500px;
+    padding: 50px;
+    background: #FFFFFF;
+    border-radius: 15px;
+}
+
 #welcomeButtons {
+    margin: auto;
     border-style: none;
     padding: 10px;
-    width: 300px;
-    height: 45px;
+    width: 312px;
+    height: 47px;
     border-radius: 5px;
     color: white;
     background-color: #00c2ff;
+    font-size: 20px;
+}
+
+.textFields {
+    margin: 10px;
+    border-style: solid;
+    border-width: 1px;
+    padding-left: 10px;
+    width: 300px;
+    height: 45px;
+    border-radius: 5px;
+    background-color: white;
     font-size: 20px;
 }
 
@@ -37,4 +66,5 @@ h1 {
     display: grid;
     justify-content: center;
     align-items: center;
+    text-align: center;
 }
