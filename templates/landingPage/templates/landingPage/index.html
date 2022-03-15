@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="./css/main.css" rel="stylesheet" />
+		<script src="./javascript/main.js"></script>
+	</head>
+	<body onload="on_load()">
+		<div id="page">
+			<div id="status-frame">
+				<div id="profile-frame">
+					<div id="profile-photo">
+						<img src="./images/chess_rook.png" class="friend-photo-image">
+					</div>
+					<div id="profile-name">Profile Name</div>
+				</div>
+				<div id="friends-frame">
+					<div class="friend">
+						<div class="friend-photo">
+							<img src="./images/crown_a.png" class="friend-photo-image">
+						</div>
+						<div class="friend-name" onclick="select_friend(this)">Shoutbox</div>
+					</div>
+					<div class="friend">
+						<div class="friend-photo">
+							<img src="./images/bow.png" class="friend-photo-image">
+						</div>
+						<div class="friend-name" onclick="select_friend(this)">Alison</div>
+					</div>
+					<div class="friend">
+						<div class="friend-photo">
+							<img src="./images/campfire.png" class="friend-photo-image">
+						</div>
+						<div class="friend-name" onclick="select_friend(this)">Conor</div>
+					</div>
+					<div class="friend">
+						<div class="friend-photo">
+							<img src="./images/chess_knight.png" class="friend-photo-image">
+						</div>
+						<div class="friend-name" onclick="select_friend(this)">Paige</div>
+					</div>
+				</div>
+				<div id="logout-frame">
+					<div id="logout-button" onclick="logout()">[Logout]</div>
+				</div>
+			</div>
+			<div id="chat-frame">
+				<div id="recipient-frame">
+					<div id="recipient-photo">
+						<img src="./images/profile_pic.png" id="recipient-photo-image">
+					</div>
+					<div id="recipient-name">Recipient</div>
+				</div>
+				<div id="message-frame">
+					<div class="message">
+						<div class="message-sender">Message1 Sender: </div>
+						<div class="message-text">Message1 Text.</div>
+					</div>
+					<div class="message">
+						<div class="message-sender">Message2 Sender: </div>
+						<div class="message-text">Message2 Text.</div>
+					</div>
+					<div class="message">
+						<div class="message-sender">Message3 Sender: </div>
+						<div class="message-text">Message3 Text.</div>
+					</div>
+				</div>
+				<div id="input-frame">
+					<input id="input-field">
+					<div id="send-button" onclick="send_message()">[Send]</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
