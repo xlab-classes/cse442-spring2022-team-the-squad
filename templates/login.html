@@ -13,14 +13,14 @@
 
         <h1>LOGIN</h1>
         <br>
-
-        <form action="dashboard.php">
+        {{ login_msg }}
+        <form name="accountinfo" action="" method="POST">
             <div class="centerContainer">
                 <input class="textFields" type="text" placeholder="Username" name="uname" id="uname" required>
                 <input class="textFields" type="password" placeholder="Password" name="pwd" id="pwd" required>
                 <br>
                 <br>
-                <button id="welcomeButtons">Login</button>
+                <button type="submit" class="welcomeButtons">Log in</button>
                 
             </div>
         </form>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="login">
+
+        <h1>WELCOME!</h1>
+        <br>
+        
+        <div class="centerContainer">
+            <button id="loginbtn" class="welcomeButtons">Login</button>
+            <br>
+            <button id="registerbtn" class="welcomeButtons">Register</button>
+            <br>
+            <button id="guestbtn" class="welcomeButtons">Continue as Guest</button>
+        </div>
+
+        <script type="text/javascript">
+            document.getElementById("registerbtn").onclick = function () {
+                location.href = "register.html";
+            };
+
+            document.getElementById("loginbtn").onclick = function () {
+                location.href = "login.html";
+            };
+
+            document.getElementById("guestbtn").onclick = function () {
+                location.href = "";
+            };
+
+        
+        </script>
+
+    </div>
+</body>
+
+</html>

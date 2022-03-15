@@ -37,7 +37,7 @@ h4 {
     border-radius: 15px;
 }
 
-#welcomeButtons {
+.welcomeButtons {
     margin: auto;
     border-style: none;
     padding: 10px;
