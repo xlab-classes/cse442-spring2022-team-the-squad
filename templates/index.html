@@ -14,10 +14,11 @@
         <h1>WELCOME!</h1>
         <br>
         {% if session['username'] %}
-        Hello, {{ username }}.
+        Hello, {{  request.args.get('username') }}.
         {% endif %}
 
         <div class="centerContainer">
+        {% if 'username' not in session %}
             <button id="loginbtn" class="welcomeButtons">Login</button>
             <br>
             <button id="registerbtn" class="welcomeButtons">Register</button>
@@ -40,6 +41,27 @@
 
         
         </script>
+        {% endif %}
+
+        {% if session['username'] %}
+        <button id="continuebtn" class="welcomeButtons">Continue to Chat</button>
+        <br>
+        <button id="logoutbtn" class="welcomeButtons">Logout</button>
+        <br>
+
+        <script type="text/javascript">
+            document.getElementById("continuebtn").onclick = function () {
+                location.href = "";
+            };
+
+        
+            document.getElementById("logoutbtn").onclick = function () {
+                location.href = "logout.html";
+            };
+        </script>
+        {% endif %}
+
+        
 
     </div>
 </body>

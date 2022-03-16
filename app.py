@@ -91,7 +91,7 @@ def login_user():
         return render_template('login.html')
     else:
         session['username'] = u_username
-        return render_template('index.html', username=session['username'])
+        return redirect(url_for('home', session['username']))
 
     
 
@@ -101,7 +101,7 @@ def logout_user():
     if "username" in session:
         session.pop('username', None)
 
-    return redirect (url_for('index.html'))
+    return redirect(url_for('home'))
 
 
 ###########################
@@ -129,9 +129,10 @@ def create_user():
     #else:
     #    return 'User already exists!' #DO NOT ALLOW TO REGISTER, USERNAME ALREADY EXISTS
     flash("User successfully added!") #SUCCESSFULLY REGISTER
-    return render_template('login.html')
+    return redirect(url_for('login'))
 
 
 
 if __name__ == '__main__':
-    app.run(host='128.205.32.39', port=7321)
+    #app.run(host='128.205.32.39', port=7321)
+    app.run(host='0.0.0.0', port=7321)	
