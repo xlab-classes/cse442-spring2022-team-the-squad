@@ -1,10 +1,13 @@
-from flask import Flask, render_template, request
+from flask import Flask, flash, render_template, redirect, request, session, url_for
 
 #changed MySQL connector
 from flaskext.mysql import MySQL
 
 # initialize global mySQL connection
 app = Flask(__name__, template_folder='templates')
+
+#for sessions
+app.secret_key = "the squad"
 
 mysql = MySQL()
 
@@ -73,7 +76,7 @@ def login():
 
 @app.route('/login.html', methods=['POST'])
 def login_user():
-    msg = ""
+
 
     u_username = request.form['uname']
     u_password = request.form['pwd']
@@ -84,11 +87,21 @@ def login_user():
     result = cursor.fetchall()
 
     if len(result) == 0:
-        msg = "No user found with that information"
+        flash("No user found with that information")
+        return render_template('login.html')
     else:
-        msg = "Logged in!"
+        session['username'] = u_username
+        return render_template('index.html', username=session['username'])
 
-    return render_template('login.html', login_msg=msg)
+    
+
+
+@app.route('/logout.html')
+def logout_user():
+    if "username" in session:
+        session.pop('username', None)
+
+    return redirect (url_for('index.html'))
 
 
 ###########################
@@ -105,7 +118,7 @@ def create_user():
     u_email = request.form['email']
     u_username = request.form['uname']
     u_password = request.form['pwd']
-    msg = ""
+
 
     cursor = connection.cursor()
     cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
@@ -115,10 +128,8 @@ def create_user():
     #    mySQL_insert(u_email, u_password, u_username)
     #else:
     #    return 'User already exists!' #DO NOT ALLOW TO REGISTER, USERNAME ALREADY EXISTS
-    msg = "User successfully added!" #SUCCESSFULLY REGISTER
-    
-    
-    return render_template('register.html', report_msg=msg)
+    flash("User successfully added!") #SUCCESSFULLY REGISTER
+    return render_template('login.html')
 
 
 

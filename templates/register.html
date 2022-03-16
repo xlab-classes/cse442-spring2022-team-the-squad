@@ -4,7 +4,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
 </head>
 
 <body>
@@ -13,13 +13,13 @@
 
         <h1>REGISTER</h1>
         <br>
-        {{ report_msg }}
+        
         <form name="accountinfo" action="" method="POST">
             <div class="centerContainer">
                 <input class="textFields" type="text" placeholder="Email" name="email" id="email" required>
                 <input class="textFields" type="text" placeholder="Username" name="uname" id="uname" required>
                 <input class="textFields" type="password" placeholder="Password" name="pwd" id="pwd" required>
-                <p>Already registered? <a href="#">Log in</a>.</p>
+                <p>Already registered? <a href="login.html">Log in</a>.</p>
                 <button type="submit" class="welcomeButtons">Register</button>
                 <br>
             </div>

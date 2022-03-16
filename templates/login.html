@@ -4,7 +4,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
 </head>
 
 <body>
@@ -13,7 +13,15 @@
 
         <h1>LOGIN</h1>
         <br>
-        {{ login_msg }}
+        {% block content %}
+            {% with alerts = get_flashed_messages() %}
+                {% if alerts %}
+                    {% for alert in alerts %}
+                        <p>{{ alert }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        {% endblock %}
         <form name="accountinfo" action="" method="POST">
             <div class="centerContainer">
                 <input class="textFields" type="text" placeholder="Username" name="uname" id="uname" required>

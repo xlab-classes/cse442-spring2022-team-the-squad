@@ -4,7 +4,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
 </head>
 
 <body>
@@ -13,7 +13,10 @@
 
         <h1>WELCOME!</h1>
         <br>
-        
+        {% if session['username'] %}
+        Hello, {{ username }}.
+        {% endif %}
+
         <div class="centerContainer">
             <button id="loginbtn" class="welcomeButtons">Login</button>
             <br>
