@@ -19,6 +19,9 @@ function gen_message_template(sender, message) {
 
 // Populates the default information when the page loads.
 function on_load() {
+	const params = new URLSearchParams(window.location.search);
+	USERNAME = params.get("username");
+
 	populate_values()
 }
 
@@ -75,7 +78,11 @@ function recieve_message(message) {
 // The "onclick" event when selecting a friend. Based on which friend is selected, that friend's
 // name and the link to their profile picture is stored, then the site repopulated.
 function select_friend(object) {
-	RECIPIENT = object.innerHTML;
-	RECIPIENT_PICTURE = object.parentElement.getElementsByClassName('friend-photo-image')[0].src;
+	// In every "friend" div there is only one object with the 'friend-name' and one object
+	// with the 'friend-photo-image' class tag. The clicked "friend" div is passed in so we
+	// can just find the first child of the given classes, since there should only be one
+	// of each.
+	RECIPIENT = object.getElementsByClassName('friend-name')[0].innerHTML;
+	RECIPIENT_PICTURE = object.getElementsByClassName('friend-photo-image')[0].src;
 	populate_values();
 }
