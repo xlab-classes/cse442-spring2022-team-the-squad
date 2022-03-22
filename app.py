@@ -1,101 +1,109 @@
+# NOTE: In this proof of concept, for simplicity, all routes that are not the
+# landing page were removed allong will all usage of the SQL database.
+#
 from flask import Flask, flash, render_template, redirect, request, session, url_for
+import json
 
-#changed MySQL connector
-from flaskext.mysql import MySQL
-
-# initialize global mySQL connection
 app = Flask(__name__, template_folder='templates')
 
-#for sessions
-app.secret_key = "the squad"
-
-mysql = MySQL()
-
-app.config['MYSQL_DATABASE_USER'] = "shawnkop"
-app.config['MYSQL_DATABASE_PASSWORD'] = "50356342"
-app.config['MYSQL_DATABASE_DB'] = "cse442_2022_spring_team_x_db"
-app.config['MYSQL_DATABASE_HOST'] = "oceanus.cse.buffalo.edu"
-app.config['MYSQL_PORT'] = 3306
-
-mysql.init_app(app)
-
-connection = mysql.connect()
-
-#-------------------------------------
-#           -FLASK ROUTING-
-#-------------------------------------
-@app.route('/', methods=['GET'])
-def home():
-    return render_template('index.html')
-
-#######################
-
-@app.route('/login.html', methods=['GET'])
-def login():
-    return render_template('login.html')    
+CURRENT_MESSAGE_ID = 0
+MOCK_DATABASE = {
+    "messages": [
+    
+    ]
+}
 
 
-###########################
+# When an AJAX post request is recieved and there is no data to be sent back,
+# a status post request will be sent. This indicates the success or failure
+# of the operation that was performed. The two statuses are 0 (success) or
+# 1 (failure).
+def construct_status(status, location, reason):
+    return {
+        "type": "status",
+        "data": {
+            "status": status,
+            "message": "{} [{}]".format(location, reason)
+        }
+    }
 
-@app.route('/login.html', methods=['POST'])
-def login_user():
+
+# Used to simulate a write to the SQL database. This is called
+# whenever a client sends a message to the server.
+def add_message_to_database(sender, message):
+    global CURRENT_MESSAGE_ID
+    MOCK_DATABASE["messages"].append(
+        {
+            "id": CURRENT_MESSAGE_ID,
+            "sender": sender,
+            "message": message
+        }
+    )
+    CURRENT_MESSAGE_ID += 1
 
 
-    u_username = request.form['uname']
-    u_password = request.form['pwd']
-    cursor = connection.cursor()
+# Returns a list of all messages that were sent after the message
+# with the given index. If a client reports that it recieved
+# message id 3, this will return all messages with an id of
+# 4 or higher.
+def get_messages_since(message_id):
+    return MOCK_DATABASE["messages"][message_id+1:]
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
-    cursor.execute("SELECT * from users where username = %s AND PWD = %s", (u_username, u_password))
-    connection.commit()
-    result = cursor.fetchall()
-
-    if len(result) == 0:
-        flash("No user found with that information")
-        return render_template('login.html')
-    else:
-        session['username'] = u_username
-        return redirect(url_for('landingPage', username=session['username']))
-
-###########################
-
-@app.route('/logout.html')
-def logout_user():
-    if "username" in session:
-        session.pop('username', None)
-
-    return redirect(url_for('home'))
-
-###########################
-
-@app.route('/register.html', methods=['GET'])
-def register():
-    return render_template('register.html')
-
-#############################
-
-@app.route('/register.html', methods=['POST'])
-def create_user():
-    u_email = request.form['email']
-    u_username = request.form['uname']
-    u_password = request.form['pwd']
-
-    cursor = connection.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
-    cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
-    connection.commit()
-    flash("User successfully added!") #SUCCESSFULLY REGISTER
-    return redirect(url_for('login'))
-
-#############################
 
 @app.route('/landingPage/index.html', methods=['GET'])
 def landingPage():
+    print(request.values)
     return render_template('landingPage/index.html')
 
 
-#############################
+# This is called every time the client sends a new message to
+# the server.
+@app.route('/landingPage/message', methods=['POST'])
+def recieve_message():
+    data = json.loads(request.get_data().decode('utf8'))
+
+    if data.get("type") == "message":
+        sender = data["data"]["sender"].strip()
+        message = data["data"]["message"].strip()
+
+        if message == "":
+            return construct_status(1, "Message send failure", "blank message")
+
+        add_message_to_database(sender, message)
+
+        print('[message] : [{}] {}'.format(sender, message))
+        return construct_status(0, "Message send success", "")
+
+    # This return statement is irrelevant, it is not used by
+    # the client, but the function is requred to return a
+    # string.
+    return construct_status(1, "Message send failure", "missing \"type\" \"message\"")
+
+
+# This is called every time the client pings the server for new
+# messages. It returns every message since the most recent that
+# the client reports that it recieved.
+@app.route('/landingPage/sync', methods=['POST'])
+def sync_client():
+    data = json.loads(request.get_data().decode('utf8'))
+
+    if data.get("type") == "sync":
+        last_message_recieved = data["data"]["last_message"]
+
+        return_data = {
+            "type": "sync",
+            "data": get_messages_since(last_message_recieved)
+        }
+
+        return json.dumps(return_data)
+    return construct_status(1, "Sync failure", "missing \"type\" \"sync\"")
+
 
 if __name__ == '__main__':
-    #app.run(host='128.205.32.39', port=7321)
-    app.run(host='0.0.0.0', port=7321)	
+    # Add some test messages to the mock database so that the
+    # client has messages to pull when it first connects.
+    add_message_to_database("Test User", "Hello guys, how's it going?")
+    add_message_to_database("Other User", "Pretty good, how are you?")
+    add_message_to_database("Mr. Gamer", "I just beat my game guys!")
+
+    app.run(host='127.0.0.1', port=7321)	
