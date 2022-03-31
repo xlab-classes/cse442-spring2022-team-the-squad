@@ -45,7 +45,7 @@ def login_user():
     u_password = request.form['pwd']
     cursor = connection.cursor()
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255), pwdhint VARCHAR(255))")
     cursor.execute("SELECT * from users where username = %s AND PWD = %s", (u_username, u_password))
     connection.commit()
     result = cursor.fetchall()
@@ -79,13 +79,40 @@ def create_user():
     u_email = request.form['email']
     u_username = request.form['uname']
     u_password = request.form['pwd']
+    u_pwdhint = request.form['pwdhint']
 
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
-    cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255), pwdhint VARCHAR(255))")
+    cursor.execute("INSERT INTO users(email, pwd, username, pwdhint) VALUES (%s, %s, %s, %s)", (u_email, u_password, u_username, u_pwdhint))
     connection.commit()
     flash("User successfully added!") #SUCCESSFULLY REGISTER
     return redirect(url_for('login'))
+
+#############################
+
+@app.route('/forgotPassword.html', methods=['GET'])
+def forgot_page():
+    return render_template('forgotPassword.html')
+
+#############################
+
+@app.route('/forgotPassword.html', methods=['POST'])
+def forgot_password():
+    u_email = request.form['email']
+
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT pwdhint from users where email = %s", u_email)
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) == 0:
+        flash("No user found with that information")
+        return render_template('login.html')
+    else:
+        #retrieve result from the result's row
+        flash("No user found with that information")
+        return redirect(url_for('login'))
 
 #############################
 
