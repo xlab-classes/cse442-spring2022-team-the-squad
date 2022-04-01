@@ -13,7 +13,15 @@
 
         <h1>REGISTER</h1>
         <br>
-        
+        {% block content %}
+            {% with alerts = get_flashed_messages() %}
+                {% if alerts %}
+                    {% for alert in alerts %}
+                        <p>{{ alert }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        {% endblock %}
         <form name="accountinfo" action="" method="POST">
             <div class="centerContainer">
                 <input class="textFields" type="text" placeholder="Email" name="email" id="email" required>
@@ -28,3 +36,5 @@
 </body>
 
 </html>
+
+<!-- #18 and #38 -->

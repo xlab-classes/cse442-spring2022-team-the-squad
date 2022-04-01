@@ -43,8 +43,8 @@ def login_user():
     u_password = request.form['pwd']
     cursor = connection.cursor()
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
-    cursor.execute("SELECT * from users where username = %s AND PWD = %s", (u_username, u_password))
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255), pwdhint VARCHAR(255))")
+    cursor.execute("SELECT * from users where username = %s AND pwd = %s", (u_username, u_password))
     connection.commit()
     result = cursor.fetchall()
 
@@ -79,11 +79,29 @@ def create_user():
     u_password = request.form['pwd']
 
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
-    cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255), pwdhint VARCHAR(255))")
+
+    #check if username and/or email already exists 
+    cursor.execute("SELECT * from users where username = %s OR email = %s", (u_username, u_email))
     connection.commit()
-    flash("User successfully added!") #SUCCESSFULLY REGISTER
-    return redirect(url_for('login'))
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        for rows in result:
+            if rows[0] == u_email and rows[1] == u_username:     
+                flash("A user with that email and username already exists")
+                return render_template('register.html')
+            if rows[0] == u_email and rows[1] != u_username:
+                flash("A user with that email already exists")
+                return render_template('register.html')
+            if rows[1] == u_username and rows[0] != u_email:
+                flash("A user with that username already exists")
+                return render_template('register.html')
+    else:
+        cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
+        connection.commit()
+        flash("User successfully added!") #SUCCESSFULLY REGISTER
+        return redirect(url_for('login'))
 
 #############################
 
