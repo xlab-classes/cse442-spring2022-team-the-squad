@@ -36,10 +36,8 @@ def login():
 
 
 ###########################
-
 @app.route('/login.html', methods=['POST'])
 def login_user():
-
 
     u_username = request.form['uname']
     u_password = request.form['pwd']
@@ -52,11 +50,9 @@ def login_user():
 
     if len(result) == 0:
         flash("No user found with that information")
-        print("flashing")
         return render_template('login.html')
     else:
         session['username'] = u_username
-        print("redirecting")
         return redirect(url_for('landingPage', username=session['username']))
 
 ###########################
@@ -81,7 +77,7 @@ def create_user():
     u_email = request.form['email']
     u_username = request.form['uname']
     u_password = request.form['pwd']
-    print("track 1")
+
     cursor = connection.cursor()
     cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
     cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
@@ -93,11 +89,11 @@ def create_user():
 
 @app.route('/landingPage/index.html', methods=['GET'])
 def landingPage():
-    print("track 2")
     return render_template('landingPage/index.html')
 
 
 #############################
+
 
 if __name__ == '__main__':
     #app.run(host='128.205.32.39', port=7321)
