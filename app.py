@@ -36,8 +36,10 @@ def login():
 
 
 ###########################
+
 @app.route('/login.html', methods=['POST'])
 def login_user():
+
 
     u_username = request.form['uname']
     u_password = request.form['pwd']
@@ -93,7 +95,6 @@ def landingPage():
 
 
 #############################
-
 
 if __name__ == '__main__':
     #app.run(host='128.205.32.39', port=7321)
