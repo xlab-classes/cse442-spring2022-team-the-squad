@@ -22,6 +22,19 @@
                 {% endif %}
             {% endwith %}
         {% endblock %}
+        <div id="hint" style="display: none"></div>
+        <script>
+            const params = new URLSearchParams(window.location.search);
+	        pw_hint = params.get("hint");
+
+            if (pw_hint != null) {
+                pw_hint_element = document.getElementById('hint');
+                pw_hint_element.innerHTML = "Hint: " + pw_hint;
+                pw_hint_element.style.display = 'block';
+            }
+
+
+        </script>
         <form name="accountinfo" action="" method="POST">
             <div class="centerContainer">
                 <input class="textFields" type="text" placeholder="Username" name="uname" id="uname" required>

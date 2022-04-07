@@ -45,8 +45,8 @@ def login_user():
     u_password = request.form['pwd']
     cursor = connection.cursor()
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255), pwdhint VARCHAR(255))")
-    cursor.execute("SELECT * from users where username = %s AND PWD = %s", (u_username, u_password))
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
+    cursor.execute("SELECT * from users where username = %s AND pwd = %s", (u_username, u_password))
     connection.commit()
     result = cursor.fetchall()
 
@@ -82,37 +82,58 @@ def create_user():
     u_pwdhint = request.form['pwdhint']
 
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255), pwdhint VARCHAR(255))")
-    cursor.execute("INSERT INTO users(email, pwd, username, pwdhint) VALUES (%s, %s, %s, %s)", (u_email, u_password, u_username, u_pwdhint))
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
+
+    #check if username and/or email already exists 
+    cursor.execute("SELECT * from users where username = %s OR email = %s", (u_username, u_email))
     connection.commit()
-    flash("User successfully added!") #SUCCESSFULLY REGISTER
-    return redirect(url_for('login'))
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        for rows in result:
+            if rows[0] == u_email and rows[1] == u_username:     
+                flash("A user with that email and username already exists")
+                return render_template('register.html')
+            if rows[0] == u_email and rows[1] != u_username:
+                flash("A user with that email already exists")
+                return render_template('register.html')
+            if rows[1] == u_username and rows[0] != u_email:
+                flash("A user with that username already exists")
+                return render_template('register.html')
+    else:
+        cursor.execute("INSERT INTO users(email, username, pwd, pwdhint) VALUES (%s, %s, %s, %s)", (u_email, u_username, u_password, u_pwdhint))
+        connection.commit()
+        flash("User successfully added!") #SUCCESSFULLY REGISTER
+        return redirect(url_for('login'))
 
 #############################
 
-@app.route('/forgotPassword.html', methods=['GET'])
+@app.route('/forgotpassword.html', methods=['GET'])
 def forgot_page():
-    return render_template('forgotPassword.html')
+    return render_template('forgotpassword.html')
 
 #############################
 
-@app.route('/forgotPassword.html', methods=['POST'])
+@app.route('/forgotpassword.html', methods=['POST'])
 def forgot_password():
     u_email = request.form['email']
 
     cursor = connection.cursor()
 
-    cursor.execute("SELECT pwdhint from users where email = %s", u_email)
+    cursor.execute("SELECT * from users where email = %s", u_email)
     connection.commit()
     result = cursor.fetchall()
 
-    if len(result) == 0:
-        flash("No user found with that information")
-        return render_template('login.html')
-    else:
+    if len(result) > 0:
         #retrieve result from the result's row
+        pw_hint = ""
+        for rows in result:
+            #flash("Password Hint:", rows[3])
+            pw_hint = rows[3]
+        return redirect(url_for('login', hint=pw_hint))
+    else:
         flash("No user found with that information")
-        return redirect(url_for('login'))
+        return render_template('forgotpassword.html')
 
 #############################
 
