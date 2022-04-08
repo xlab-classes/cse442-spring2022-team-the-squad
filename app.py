@@ -45,7 +45,7 @@ def login_user():
     u_password = request.form['pwd']
     cursor = connection.cursor()
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255), pwdhint VARCHAR(255))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
     cursor.execute("SELECT * from users where username = %s AND pwd = %s", (u_username, u_password))
     connection.commit()
     result = cursor.fetchall()
@@ -79,9 +79,10 @@ def create_user():
     u_email = request.form['email']
     u_username = request.form['uname']
     u_password = request.form['pwd']
+    u_pwdhint = request.form['pwdhint']
 
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255), pwdhint VARCHAR(255))")
+    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
 
     #check if username and/or email already exists 
     cursor.execute("SELECT * from users where username = %s OR email = %s", (u_username, u_email))
@@ -100,10 +101,39 @@ def create_user():
                 flash("A user with that username already exists")
                 return render_template('register.html')
     else:
-        cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
+        cursor.execute("INSERT INTO users(email, username, pwd, pwdhint) VALUES (%s, %s, %s, %s)", (u_email, u_username, u_password, u_pwdhint))
         connection.commit()
         flash("User successfully added!") #SUCCESSFULLY REGISTER
         return redirect(url_for('login'))
+
+#############################
+
+@app.route('/forgotpassword.html', methods=['GET'])
+def forgot_page():
+    return render_template('forgotpassword.html')
+
+#############################
+
+@app.route('/forgotpassword.html', methods=['POST'])
+def forgot_password():
+    u_email = request.form['email']
+
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * from users where email = %s", u_email)
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        #retrieve result from the result's row
+        pw_hint = ""
+        for rows in result:
+            #flash("Password Hint:", rows[3])
+            pw_hint = rows[3]
+        return redirect(url_for('login', hint=pw_hint))
+    else:
+        flash("No user found with that information")
+        return render_template('forgotpassword.html')
 
 #############################
 
@@ -113,6 +143,26 @@ def landingPage():
 
 
 #############################
+
+@app.route('/addfriend.html', methods=['POST'])
+def add_friend():
+    u_receiver = request.form['r_friend'] 
+
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * from users where username = %s", u_receiver)
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        #add check to see if they arent already friends
+        cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (session["username"], u_receiver))
+        connection.commit()
+        #return render_template('/landingPage/index.html', friend=friend)
+    else:
+        flash("No user found with that username")
+        #return render_template('forgotpassword.html')
+
 
 if __name__ == '__main__':
     #app.run(host='128.205.32.39', port=7321)
