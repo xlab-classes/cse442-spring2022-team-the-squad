@@ -1,69 +1,74 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
-</head>
-
-<body>
-
-    <div class="login">
-
-        <h1>WELCOME!</h1>
-        <br>
-        {% if session['username'] %}
-        Hello, {{  request.args.get('username') }}.
-        {% endif %}
-
-        <div class="centerContainer">
-        {% if 'username' not in session %}
-            <button id="loginbtn" class="welcomeButtons">Login</button>
-            <br>
-            <button id="registerbtn" class="welcomeButtons">Register</button>
-            <br>
-            <button id="guestbtn" class="welcomeButtons">Continue as Guest</button>
-        </div>
-
-        <script type="text/javascript">
-            document.getElementById("registerbtn").onclick = function () {
-                location.href = "register.html";
-            };
-
-            document.getElementById("loginbtn").onclick = function () {
-                location.href = "login.html";
-            };
-
-            document.getElementById("guestbtn").onclick = function () {
-                location.href = "/landingPage/index.html";
-            };
-
-        
-        </script>
-        {% endif %}
-
-        {% if session['username'] %}
-        <button id="continuebtn" class="welcomeButtons">Continue to Chat</button>
-        <br>
-        <button id="logoutbtn" class="welcomeButtons">Logout</button>
-        <br>
-
-        <script type="text/javascript">
-            document.getElementById("continuebtn").onclick = function () {
-                location.href = "";
-            };
-
-        
-            document.getElementById("logoutbtn").onclick = function () {
-                location.href = "logout.html";
-            };
-        </script>
-        {% endif %}
-
-        
-
-    </div>
-</body>
-
+	<head>
+		<link href="{{ url_for('static',filename='styles/landingPage/css/main.css') }}" rel="stylesheet" />
+		<script src="{{ url_for('static',filename='styles/landingPage/javascript/main.js') }}"></script>
+	</head>
+	<body onload="on_load()">
+		<div id="page">
+			<div id="status-frame">
+				<div id="profile-frame">
+					<div id="profile-photo">
+						<img src="{{ url_for('static',filename='styles/landingPage/images/chess_rook.png') }}" class="friend-photo-image">
+					</div>
+					<div id="profile-name">Profile Name</div>
+				</div>
+				<div id="friends-frame">
+					<div class="friend" onclick="select_friend(this)">
+						<div class="friend-photo">
+							<img src="{{ url_for('static',filename='styles/landingPage/images/crown_a.png') }}" class="friend-photo-image">
+						</div>
+						<div class="friend-name">Shoutbox</div>
+					</div>
+					<div class="friend" onclick="select_friend(this)">
+						<div class="friend-photo">
+							<img src="{{ url_for('static',filename='styles/landingPage/images/bow.png') }}" class="friend-photo-image">
+						</div>
+						<div class="friend-name">Alison</div>
+					</div>
+					<div class="friend" onclick="select_friend(this)">
+						<div class="friend-photo">
+							<img src="{{ url_for('static',filename='styles/landingPage/images/campfire.png') }}" class="friend-photo-image">
+						</div>
+						<div class="friend-name">Conor</div>
+					</div>
+					<div class="friend" onclick="select_friend(this)">
+						<div class="friend-photo">
+							<img src="{{ url_for('static',filename='styles/landingPage/images/chess_knight.png') }}" class="friend-photo-image">
+						</div>
+						<div class="friend-name">Paige</div>
+					</div>
+				</div>
+				<div id="logout-frame">
+					<div id="logout-button" onclick="logout()">[Logout]</div>
+				</div>
+			</div>
+			<div id="chat-frame">
+				<div id="recipient-frame">
+					<div id="recipient-photo">
+						<img src="{{ url_for('static',filename='styles/landingPage/images/profile_pic.png') }}" id="recipient-photo-image">
+					</div>
+					<div id="recipient-name">Recipient</div>
+				</div>
+				<div id="message-frame">
+					<div class="message">
+						<div class="message-sender">Message1 Sender: </div>
+						<div class="message-text">Message1 Text.</div>
+					</div>
+					<div class="message">
+						<div class="message-sender">Message2 Sender: </div>
+						<div class="message-text">Message2 Text.</div>
+					</div>
+					<div class="message">
+						<div class="message-sender">Message3 Sender: </div>
+						<div class="message-text">Message3 Text.</div>
+					</div>
+				</div>
+				<div id="input-frame">
+					<input id="input-field">
+					<div id="send-button" onclick="send_message()">[Send]</div>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>
