@@ -17,12 +17,25 @@ function gen_message_template(sender, message) {
 	`;
 }
 
+function gen_friend_template(friend) {
+	return `
+	<div class="friend" onclick="select_friend(this)">
+		<div class="friend-photo">
+			<img src="{{ url_for('static',filename='styles/landingPage/images/crown_a.png') }}" class="friend-photo-image">
+		</div>
+		<div class="friend-name">${friend}</div>
+	</div>
+`;
+}
+
 // Populates the default information when the page loads.
 function on_load() {
 	const params = new URLSearchParams(window.location.search);
 	USERNAME = params.get("username");
 
 	populate_values()
+
+	clear_friends()
 }
 
 // The purpose of this function is to set all of the different values
@@ -55,6 +68,14 @@ function clear_messages() {
 	};
 }
 
+// Deletes all child elements of the friends list, clearing it.
+function clear_friends() {
+	friends_frame = document.getElementById('friends-frame');
+	while (friends_frame.lastChild.innerText != "Shoutbox") {
+			friends_frame.removeChild(friends_frame.lastChild);
+	};
+}
+
 // Placeholder fuction for the logout button.
 function logout() {
 	alert("Logged out");
@@ -73,6 +94,21 @@ function recieve_message(message) {
 	// AJAX Get message
 	message_frame = document.getElementById('message-frame');
 	message_frame.insertAdjacentHTML('beforeend', gen_message_template(USERNAME, message));
+}
+
+
+function add_friend() {
+	console.log("Add friend");
+	var friend = document.getElementById("search-field").value;
+	// AJAX Send message
+	list_friend(friend);
+}
+
+// Recieve a message from the server.
+function list_friend(friend) {
+	// AJAX Get message
+	friends_frame = document.getElementById('friends-frame');
+	friends_frame.insertAdjacentHTML('beforeend', gen_friend_template(friend));
 }
 
 // The "onclick" event when selecting a friend. Based on which friend is selected, that friend's
