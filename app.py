@@ -1,3 +1,4 @@
+from stat import FILE_ATTRIBUTE_NO_SCRUB_DATA
 from flask import Flask, flash, render_template, redirect, request, session, url_for
 
 #changed MySQL connector
@@ -139,14 +140,38 @@ def forgot_password():
 
 @app.route('/landingPage/index.html', methods=['GET'])
 def landingPage():
-    return render_template('landingPage/index.html')
+    #code for generating add users list
+    cursor = connection.cursor()
+    cursor.execute("SELECT username from users where username != %s", session["username"])
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        a_list = []
+        for row in result:
+            a_list.append(row[0])
+
+    #code for generating friends list
+    cursor = connection.cursor()
+    cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        f_list = []
+        for row in result:
+            f_list.append(row[0])
+        return render_template('landingPage/index.html', add_list=a_list, friend_list=f_list)
+    else:
+        return render_template('landingPage/index.html', add_list=a_list, friend_list=[])
 
 
 #############################
 
-@app.route('/addfriend.html', methods=['POST'])
+@app.route('/landingPage/index.html', methods=['POST'])
 def add_friend():
-    u_receiver = request.form['r_friend'] 
+    u_receiver = request.form['select_friend']
+    print(u_receiver)
 
     cursor = connection.cursor()
 
@@ -154,14 +179,27 @@ def add_friend():
     connection.commit()
     result = cursor.fetchall()
 
+    
+    #add check to see if they arent already friends
+    cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (session["username"], u_receiver))
+    connection.commit()
+    #now create second row with swapped vals
+    cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (u_receiver, session["username"]))
+    connection.commit()
+
+    #code for generating friends list
+    cursor = connection.cursor()
+    cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
+    connection.commit()
+    result = cursor.fetchall()
+
     if len(result) > 0:
-        #add check to see if they arent already friends
-        cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (session["username"], u_receiver))
-        connection.commit()
-        #return render_template('/landingPage/index.html', friend=friend)
-    else:
-        flash("No user found with that username")
-        #return render_template('forgotpassword.html')
+        f_list = []
+        for row in result:
+            f_list.append(row[0])
+    return render_template('landingPage/index.html', friend_list=f_list)
+    
+    
 
 
 if __name__ == '__main__':
