@@ -181,11 +181,17 @@ def add_friend():
 
     
     #add check to see if they arent already friends
-    cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (session["username"], u_receiver))
+    cursor.execute("SELECT * FROM friends where sender = %s AND receiver = %s", (session["username"], u_receiver))
     connection.commit()
-    #now create second row with swapped vals
-    cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (u_receiver, session["username"]))
-    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) == 0:
+        cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (session["username"], u_receiver))
+        connection.commit()
+        #now create second row with swapped vals
+        cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (u_receiver, session["username"]))
+        connection.commit()
+    
 
     #code for generating friends list
     cursor = connection.cursor()
