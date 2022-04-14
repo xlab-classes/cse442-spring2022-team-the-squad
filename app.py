@@ -1,7 +1,6 @@
 from flask import Flask, flash, render_template, redirect, request, session, url_for
-
-#changed MySQL connector
 from flaskext.mysql import MySQL
+import json
 
 # initialize global mySQL connection
 app = Flask(__name__, template_folder='templates')
@@ -20,6 +19,13 @@ app.config['MYSQL_PORT'] = 3306
 mysql.init_app(app)
 
 connection = mysql.connect()
+
+# create tables if they do not exist
+connection.ping(reconnect=True)
+cursor = connection.cursor()
+cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
+cursor.execute("CREATE TABLE IF NOT EXISTS messages(id MEDIUMINT NOT NULL AUTO_INCREMENT, sender VARCHAR(255), message VARCHAR(2048), recipient VARCHAR(255), PRIMARY KEY (id))")
+connection.commit()
 
 #-------------------------------------
 #           -FLASK ROUTING-
@@ -43,10 +49,10 @@ def login_user():
 
     u_username = request.form['uname']
     u_password = request.form['pwd']
-    cursor = connection.cursor()
 
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255), pwdhint VARCHAR(255))")
-    cursor.execute("SELECT * from users where username = %s AND pwd = %s", (u_username, u_password))
+    connection.ping(reconnect=True)
+    cursor = connection.cursor()
+    cursor.execute("SELECT * from users where username = %s AND PWD = %s", (u_username, u_password))
     connection.commit()
     result = cursor.fetchall()
 
@@ -80,11 +86,12 @@ def create_user():
     u_username = request.form['uname']
     u_password = request.form['pwd']
 
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255), pwdhint VARCHAR(255))")
 
     #check if username and/or email already exists 
     cursor.execute("SELECT * from users where username = %s OR email = %s", (u_username, u_email))
+    cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
     connection.commit()
     result = cursor.fetchall()
 
@@ -105,11 +112,110 @@ def create_user():
         flash("User successfully added!") #SUCCESSFULLY REGISTER
         return redirect(url_for('login'))
 
-#############################
 
+###########################################################################################################################################################################################################
+#                                                                                         FLASK  AJAX                                                                                                     #                             
+###########################################################################################################################################################################################################
+
+
+# When an AJAX post request is recieved and there is no data to be sent back,
+# a status post request will be sent. This indicates the success or failure
+# of the operation that was performed. The two statuses are 0 (success) or
+# 1 (failure).
+def construct_status(status, location, reason):
+    return {
+        "type": "status",
+        "data": {
+            "status": status,
+            "message": "{} [{}]".format(location, reason)
+        }
+    }
+
+
+# Used to simulate a write to the SQL database. This is called
+# whenever a client sends a message to the server.
+def add_message_to_database(sender, message):
+    connection.ping(reconnect=True)
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO messages(sender, message, recipient) VALUES (%s, %s, %s)", (sender, message, "GLOBAL"))
+    connection.commit()
+
+# Returns a list of all messages that were sent after the message
+# with the given index. If a client reports that it recieved
+# message id 3, this will return all messages with an id of
+# 4 or higher.
+def get_messages_since(message_id):
+    connection.ping(reconnect=True)
+    cursor = connection.cursor()
+    cursor.execute("SELECT * from messages where id > %s", (message_id))
+    connection.commit()
+    result = cursor.fetchall()
+    final = []
+    for i in result:
+        final.append(
+            {
+                "id": i[0],
+                "sender": i[1],
+                "message": i[2]
+            }
+        )
+    return final
+
+
+# Serve up the landing page when a user navigates to it.
 @app.route('/landingPage/index.html', methods=['GET'])
 def landingPage():
+    print(request.values)
     return render_template('landingPage/index.html')
+
+
+# This is called every time the client sends a new message to
+# the server. The message is added to the database and a status
+# AJAX post request is sent detailing if the message was stored
+# sucessfuly.
+@app.route('/landingPage/message', methods=['POST'])
+def recieve_message():
+    data = json.loads(request.get_data().decode('utf8'))
+
+    # This route should only recieve AJAX post requests of type "message". Any
+    # other AJAX post request type sent to this route is invalid and should
+    # return a failure message.
+    if data.get("type") == "message":
+        sender = data["data"]["sender"].strip()
+        message = data["data"]["message"].strip()
+
+        # We don't want to store blank messages, ignore them here.
+        if message == "":
+            return construct_status(1, "Message send failure", "blank message")
+
+        add_message_to_database(sender, message)
+
+        print('[message] : [{}] {}'.format(sender, message))
+        return construct_status(0, "Message send success", "")
+
+    return construct_status(1, "Message send failure", "missing \"type\" \"message\"")
+
+
+# This is called every time the client pings the server for new
+# messages. It returns every message since the most recent that
+# the client reports that it recieved.
+@app.route('/landingPage/sync', methods=['POST'])
+def sync_client():
+    data = json.loads(request.get_data().decode('utf8'))
+
+    # This route should only recieve AJAX post requests of type "sync". Any
+    # other AJAX post request type sent to this route is invalid and should
+    # return a failure message.
+    if data.get("type") == "sync":
+        last_message_recieved = data["data"]["last_message"]
+
+        return_data = {
+            "type": "sync",
+            "data": get_messages_since(last_message_recieved)
+        }
+
+        return json.dumps(return_data)
+    return construct_status(1, "Sync failure", "missing \"type\" \"sync\"")
 
 
 #############################
