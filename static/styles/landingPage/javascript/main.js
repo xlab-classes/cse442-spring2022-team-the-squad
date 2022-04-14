@@ -78,7 +78,7 @@ function clear_friends() {
 
 // Placeholder fuction for the logout button.
 function logout() {
-	window.location.href = "logout.html";
+	window.location.href = "../logout.html";
 }
 
 // Send a message to the server.

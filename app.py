@@ -194,16 +194,27 @@ def add_friend():
     
 
     #code for generating friends list
-    cursor = connection.cursor()
     cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
     connection.commit()
     result = cursor.fetchall()
+
 
     if len(result) > 0:
         f_list = []
         for row in result:
             f_list.append(row[0])
-    return render_template('landingPage/index.html', friend_list=f_list)
+    
+    #code for generating add users list
+    cursor.execute("SELECT username from users where username != %s", session["username"])
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        a_list = []
+        for row in result:
+            a_list.append(row[0])
+    
+    return render_template('landingPage/index.html', friend_list=f_list, add_list=a_list)
     
     
 
