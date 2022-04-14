@@ -91,7 +91,6 @@ def create_user():
 
     #check if username and/or email already exists 
     cursor.execute("SELECT * from users where username = %s OR email = %s", (u_username, u_email))
-    cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
     connection.commit()
     result = cursor.fetchall()
 
