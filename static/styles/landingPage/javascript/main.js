@@ -1,4 +1,4 @@
-const SYNC_DELAY = 750
+const SYNC_DELAY = 1250
 const SERVER_SYNC_PATH = "/landingPage/sync"
 const SERVER_MESSAGE_PATH = "/landingPage/message"
 

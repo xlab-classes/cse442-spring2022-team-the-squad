@@ -175,8 +175,8 @@ def forgot_page():
 def forgot_password():
     u_email = request.form['email']
 
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
-
     cursor.execute("SELECT * from users where email = %s", u_email)
     connection.commit()
     result = cursor.fetchall()
@@ -198,6 +198,7 @@ def forgot_password():
 def landingPage():
     print(request.values)
     #code for generating add users list
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
     cursor.execute("SELECT username from users where username != %s", session["username"])
     connection.commit()
@@ -209,6 +210,7 @@ def landingPage():
             a_list.append(row[0])
 
     #code for generating friends list
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
     cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
     connection.commit()
