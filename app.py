@@ -133,20 +133,20 @@ def construct_status(status, location, reason):
 
 # Used to simulate a write to the SQL database. This is called
 # whenever a client sends a message to the server.
-def add_message_to_database(sender, message):
+def add_message_to_database(sender, message, recipient):
     connection.ping(reconnect=True)
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO messages(sender, message, recipient) VALUES (%s, %s, %s)", (sender, message, "GLOBAL"))
+    cursor.execute("INSERT INTO messages(sender, message, recipient) VALUES (%s, %s, %s)", (sender, message, recipient))
     connection.commit()
 
 # Returns a list of all messages that were sent after the message
 # with the given index. If a client reports that it recieved
 # message id 3, this will return all messages with an id of
 # 4 or higher.
-def get_messages_since(message_id):
+def get_messages_since(message_id, recipient):
     connection.ping(reconnect=True)
     cursor = connection.cursor()
-    cursor.execute("SELECT * from messages where id > %s", (message_id))
+    cursor.execute("SELECT * from messages where id > %s AND recipient = %s", (message_id, recipient))
     connection.commit()
     result = cursor.fetchall()
     final = []
