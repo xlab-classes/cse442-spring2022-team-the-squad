@@ -119,7 +119,9 @@ function on_load() {
 				"type": "sync",
 				"data": {
 					"last_message": LAST_MESSAGE
-				}
+				},
+				"user": USERNAME,
+				"recipeint": RECIPIENT,
 			}
 			data_string = JSON.stringify(data);
 

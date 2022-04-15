@@ -134,20 +134,23 @@ def construct_status(status, location, reason):
 
 # Used to simulate a write to the SQL database. This is called
 # whenever a client sends a message to the server.
-def add_message_to_database(sender, message):
+def add_message_to_database(sender, message, recipient):
     chatconnection.ping(reconnect=True)
     cursor = chatconnection.cursor()
-    cursor.execute("INSERT INTO messages(sender, message, recipient) VALUES (%s, %s, %s)", (sender, message, "GLOBAL"))
+    cursor.execute("INSERT INTO messages(sender, message, recipient) VALUES (%s, %s, %s)", (sender, message, recipient))
     chatconnection.commit()
 
 # Returns a list of all messages that were sent after the message
 # with the given index. If a client reports that it recieved
 # message id 3, this will return all messages with an id of
 # 4 or higher.
-def get_messages_since(message_id):
+def get_messages_since(message_id, user, recipient):
     chatconnection.ping(reconnect=True)
     cursor = chatconnection.cursor()
-    cursor.execute("SELECT * from messages where id > %s", (message_id))
+    if recipient == "Shoutbox":
+        cursor.execute("SELECT * from messages where id > %s AND recipient = %s", (message_id, recipient))
+    else:
+        cursor.execute("SELECT * from messages where (id > %s AND sender = %s AND recipient = %s) OR (id > %s AND recipient = %s AND NOT sender = 'Shoutbox')", (message_id, user, recipient, message_id, user))
     chatconnection.commit()
     result = cursor.fetchall()
     final = []
@@ -245,12 +248,13 @@ def recieve_message():
     if data.get("type") == "message":
         sender = data["data"]["sender"].strip()
         message = data["data"]["message"].strip()
+        recipient = data["data"]["recipient"].strip()
 
         # We don't want to store blank messages, ignore them here.
         if message == "":
             return construct_status(1, "Message send failure", "blank message")
 
-        add_message_to_database(sender, message)
+        add_message_to_database(sender, message, recipient)
 
         print('[message] : [{}] {}'.format(sender, message))
         return construct_status(0, "Message send success", "")
@@ -270,10 +274,15 @@ def sync_client():
     # return a failure message.
     if data.get("type") == "sync":
         last_message_recieved = data["data"]["last_message"]
+        user = data["user"]
+        recipient = data["recipeint"]
+
+        print("user = " + user)
+        print("recipient = " + recipient)
 
         return_data = {
             "type": "sync",
-            "data": get_messages_since(last_message_recieved)
+            "data": get_messages_since(last_message_recieved, user, recipient)
         }
 
         return json.dumps(return_data)
