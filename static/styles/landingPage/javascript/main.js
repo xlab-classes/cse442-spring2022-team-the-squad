@@ -149,7 +149,8 @@ function send_message() {
 		"type": "message",
 		"data": {
 			"sender": USERNAME,
-			"message": message
+			"message": message,
+			"recipient": RECIPIENT
 		}
 	};
 
