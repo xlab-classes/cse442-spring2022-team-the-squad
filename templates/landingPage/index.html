@@ -20,6 +20,15 @@
 						</div>
 						<div class="friend-name">Shoutbox</div>
 					</div>
+					{% for friend in friend_list %}
+					<div class="friend" onclick="select_friend(this)">
+						<div class="friend-photo">
+							<img src="{{ url_for('static',filename='styles/landingPage/images/crown_a.png') }}" class="friend-photo-image">
+						</div>
+						<div class="friend-name">{{ friend }}</div>
+					</div>
+    				{% endfor %}
+					<!--
 					<div class="friend" onclick="select_friend(this)">
 						<div class="friend-photo">
 							<img src="{{ url_for('static',filename='styles/landingPage/images/bow.png') }}" class="friend-photo-image">
@@ -38,6 +47,19 @@
 						</div>
 						<div class="friend-name">Paige</div>
 					</div>
+					-->
+				</div>
+				<div id="search-frame">
+					<form action="" method="POST">
+						<input autoComplete="off" list="users" name="select_friend" id="selected-friend" oninput="examine_add_input()"/> 
+						<!--<input class="textFields" placeholder="add friends here" id="search-field">-->
+						<datalist id="users">
+							{% for user in add_list %}
+        					<option value="{{user}}">
+    						{% endfor %}
+						</datalist>
+						<button id="add-button" type="submit" onclick="add_friend()" disabled>add</button>
+					</form>
 				</div>
 				<div id="logout-frame">
 					<div id="logout-button" onclick="logout()">[Logout]</div>

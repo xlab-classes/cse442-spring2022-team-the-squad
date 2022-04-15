@@ -1,3 +1,4 @@
+from stat import FILE_ATTRIBUTE_NO_SCRUB_DATA
 from flask import Flask, flash, render_template, redirect, request, session, url_for
 from flaskext.mysql import MySQL
 import json
@@ -23,7 +24,7 @@ connection = mysql.connect()
 # create tables if they do not exist
 connection.ping(reconnect=True)
 cursor = connection.cursor()
-cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
+cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
 cursor.execute("CREATE TABLE IF NOT EXISTS messages(id MEDIUMINT NOT NULL AUTO_INCREMENT, sender VARCHAR(255), message VARCHAR(2048), recipient VARCHAR(255), PRIMARY KEY (id))")
 connection.commit()
 
@@ -85,6 +86,7 @@ def create_user():
     u_email = request.form['email']
     u_username = request.form['uname']
     u_password = request.form['pwd']
+    u_pwdhint = request.form['pwdhint']
 
     connection.ping(reconnect=True)
     cursor = connection.cursor()
@@ -106,7 +108,7 @@ def create_user():
                 flash("A user with that username already exists")
                 return render_template('register.html')
     else:
-        cursor.execute("INSERT INTO users(email, pwd, username) VALUES (%s, %s, %s)", (u_email, u_password, u_username))
+        cursor.execute("INSERT INTO users(email, username, pwd, pwdhint) VALUES (%s, %s, %s, %s)", (u_email, u_username, u_password, u_pwdhint))
         connection.commit()
         flash("User successfully added!") #SUCCESSFULLY REGISTER
         return redirect(url_for('login'))
@@ -159,13 +161,66 @@ def get_messages_since(message_id):
             }
         )
     return final
+    
+###########################################################################################################################################################################################################
 
 
-# Serve up the landing page when a user navigates to it.
+@app.route('/forgotpassword.html', methods=['GET'])
+def forgot_page():
+    return render_template('forgotpassword.html')
+
+#############################
+
+@app.route('/forgotpassword.html', methods=['POST'])
+def forgot_password():
+    u_email = request.form['email']
+
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * from users where email = %s", u_email)
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        #retrieve result from the result's row
+        pw_hint = ""
+        for rows in result:
+            #flash("Password Hint:", rows[3])
+            pw_hint = rows[3]
+        return redirect(url_for('login', hint=pw_hint))
+    else:
+        flash("No user found with that information")
+        return render_template('forgotpassword.html')
+
+#############################
+
 @app.route('/landingPage/index.html', methods=['GET'])
 def landingPage():
     print(request.values)
-    return render_template('landingPage/index.html')
+    #code for generating add users list
+    cursor = connection.cursor()
+    cursor.execute("SELECT username from users where username != %s", session["username"])
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        a_list = []
+        for row in result:
+            a_list.append(row[0])
+
+    #code for generating friends list
+    cursor = connection.cursor()
+    cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        f_list = []
+        for row in result:
+            f_list.append(row[0])
+        return render_template('landingPage/index.html', add_list=a_list, friend_list=f_list)
+    else:
+        return render_template('landingPage/index.html', add_list=a_list, friend_list=[])
 
 
 # This is called every time the client sends a new message to
@@ -218,6 +273,57 @@ def sync_client():
 
 
 #############################
+
+@app.route('/landingPage/index.html', methods=['POST'])
+def add_friend():
+    u_receiver = request.form['select_friend']
+    print(u_receiver)
+
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * from users where username = %s", u_receiver)
+    connection.commit()
+    result = cursor.fetchall()
+
+    
+    #add check to see if they arent already friends
+    cursor.execute("SELECT * FROM friends where sender = %s AND receiver = %s", (session["username"], u_receiver))
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) == 0:
+        cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (session["username"], u_receiver))
+        connection.commit()
+        #now create second row with swapped vals
+        cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (u_receiver, session["username"]))
+        connection.commit()
+    
+
+    #code for generating friends list
+    cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
+    connection.commit()
+    result = cursor.fetchall()
+
+
+    if len(result) > 0:
+        f_list = []
+        for row in result:
+            f_list.append(row[0])
+    
+    #code for generating add users list
+    cursor.execute("SELECT username from users where username != %s", session["username"])
+    connection.commit()
+    result = cursor.fetchall()
+
+    if len(result) > 0:
+        a_list = []
+        for row in result:
+            a_list.append(row[0])
+    
+    return render_template('landingPage/index.html', friend_list=f_list, add_list=a_list)
+    
+    
+
 
 if __name__ == '__main__':
     #app.run(host='128.205.32.39', port=7321)
