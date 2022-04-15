@@ -198,30 +198,37 @@ def landingPage():
     print(request.values)
     #code for generating add users list
     connection.ping(reconnect=True)
-    cursor = connection.cursor()
-    cursor.execute("SELECT username from users where username != %s", session["username"])
-    connection.commit()
-    result = cursor.fetchall()
 
-    if len(result) > 0:
-        a_list = []
-        for row in result:
-            a_list.append(row[0])
+    
+    if "username" in session:
+        cursor = connection.cursor()
+        cursor.execute("SELECT username from users where username != %s", session["username"])
+        connection.commit()
+        result = cursor.fetchall()
 
-    #code for generating friends list
-    connection.ping(reconnect=True)
-    cursor = connection.cursor()
-    cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
-    connection.commit()
-    result = cursor.fetchall()
+        if len(result) > 0:
+            a_list = []
+            for row in result:
+                a_list.append(row[0])
 
-    if len(result) > 0:
-        f_list = []
-        for row in result:
-            f_list.append(row[0])
-        return render_template('landingPage/index.html', add_list=a_list, friend_list=f_list)
+        #code for generating friends list
+        connection.ping(reconnect=True)
+        cursor = connection.cursor()
+        cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
+        connection.commit()
+        result = cursor.fetchall()
+
+        if len(result) > 0:
+            f_list = []
+            for row in result:
+                f_list.append(row[0])
+            return render_template('landingPage/index.html', add_list=a_list, friend_list=f_list)
+        else:
+            return render_template('landingPage/index.html', add_list=a_list, friend_list=[])
     else:
-        return render_template('landingPage/index.html', add_list=a_list, friend_list=[])
+        connection.ping(reconnect=True)
+
+        return render_template('landingPage/index.html')
 
 
 # This is called every time the client sends a new message to

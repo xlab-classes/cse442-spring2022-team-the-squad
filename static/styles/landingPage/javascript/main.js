@@ -99,6 +99,10 @@ function on_load() {
 	const params = new URLSearchParams(window.location.search);
 	USERNAME = params.get("username");
 
+	if (params.get("username") == null) {
+		USERNAME = "Guest";
+	}
+
 	// This needs to be called before the sync_messages "thread" is started.
 	// This is because the populate_values function clears the chat box, and
 	// we don't want the chat box to be cleared after messages have been
@@ -238,7 +242,3 @@ function select_friend(object) {
 }
 
 
-// Placeholder fuction for the logout button.
-function logout() {
-	alert("Logged out");
-}
