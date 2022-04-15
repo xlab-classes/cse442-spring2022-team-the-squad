@@ -277,9 +277,6 @@ def sync_client():
         user = data["user"]
         recipient = data["recipeint"]
 
-        print("user = " + user)
-        print("recipient = " + recipient)
-
         return_data = {
             "type": "sync",
             "data": get_messages_since(last_message_recieved, user, recipient)
