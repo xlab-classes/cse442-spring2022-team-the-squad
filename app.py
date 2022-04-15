@@ -138,7 +138,7 @@ def add_message_to_database(sender, message):
     chatconnection.ping(reconnect=True)
     cursor = chatconnection.cursor()
     cursor.execute("INSERT INTO messages(sender, message, recipient) VALUES (%s, %s, %s)", (sender, message, "GLOBAL"))
-    connection.commit()
+    chatconnection.commit()
 
 # Returns a list of all messages that were sent after the message
 # with the given index. If a client reports that it recieved
@@ -148,7 +148,7 @@ def get_messages_since(message_id):
     chatconnection.ping(reconnect=True)
     cursor = chatconnection.cursor()
     cursor.execute("SELECT * from messages where id > %s", (message_id))
-    connection.commit()
+    chatconnection.commit()
     result = cursor.fetchall()
     final = []
     for i in result:
