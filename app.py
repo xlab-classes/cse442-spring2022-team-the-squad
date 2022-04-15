@@ -90,7 +90,6 @@ def create_user():
 
     connection.ping(reconnect=True)
     cursor = connection.cursor()
-
     #check if username and/or email already exists 
     cursor.execute("SELECT * from users where username = %s OR email = %s", (u_username, u_email))
     connection.commit()
@@ -281,6 +280,7 @@ def add_friend():
     u_receiver = request.form['select_friend']
     print(u_receiver)
 
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
 
     cursor.execute("SELECT * from users where username = %s", u_receiver)
