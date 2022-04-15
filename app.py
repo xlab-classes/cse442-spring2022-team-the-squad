@@ -150,7 +150,7 @@ def get_messages_since(message_id, user, recipient):
     if recipient == "Shoutbox":
         cursor.execute("SELECT * from messages where id > %s AND recipient = %s", (message_id, recipient))
     else:
-        cursor.execute("SELECT * from messages where (id > %s AND sender = %s AND recipient = %s) OR (id > %s AND recipient = %s AND NOT sender = 'Shoutbox')", (message_id, user, recipient, message_id, user))
+        cursor.execute("SELECT * from messages where (id > %s AND sender = %s AND recipient = %s) OR (id > %s AND recipient = %s AND sender = %s AND NOT sender = 'Shoutbox')", (message_id, user, recipient, message_id, user, recipient))
     chatconnection.commit()
     result = cursor.fetchall()
     final = []
