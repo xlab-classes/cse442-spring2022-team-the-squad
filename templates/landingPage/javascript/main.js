@@ -57,7 +57,7 @@ function clear_messages() {
 
 // Placeholder fuction for the logout button.
 function logout() {
-	alert("Logged out");
+	window.location.href = "../logout.html";
 }
 
 // Send a message to the server.

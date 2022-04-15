@@ -1,4 +1,4 @@
-const SYNC_DELAY = 750
+const SYNC_DELAY = 1500
 const SERVER_SYNC_PATH = "/landingPage/sync"
 const SERVER_MESSAGE_PATH = "/landingPage/message"
 
@@ -83,9 +83,25 @@ function ajax_callback(response) {
 
 // Populates the default information when the page loads and
 // initiates the asynchronous client sync function.
+function gen_friend_template(friend) {
+	return `
+	<div class="friend" onclick="select_friend(this)">
+		<div class="friend-photo">
+			<img src="{{ url_for('static',filename='styles/landingPage/images/crown_a.png') }}" class="friend-photo-image">
+		</div>
+		<div class="friend-name">${friend}</div>
+	</div>
+`;
+}
+
+// Populates the default information when the page loads.
 function on_load() {
 	const params = new URLSearchParams(window.location.search);
 	USERNAME = params.get("username");
+
+	if (params.get("username") == null) {
+		USERNAME = "Guest";
+	}
 
 	// This needs to be called before the sync_messages "thread" is started.
 	// This is because the populate_values function clears the chat box, and
@@ -149,7 +165,8 @@ function send_message() {
 		"type": "message",
 		"data": {
 			"sender": USERNAME,
-			"message": message
+			"message": message,
+			"recipient": RECIPIENT
 		}
 	};
 
@@ -174,6 +191,39 @@ function clear_messages() {
 	};
 }
 
+/* Deletes all child elements of the friends list, clearing it.
+function clear_friends() {
+	friends_frame = document.getElementById('friends-frame');
+	while (friends_frame.lastChild.innerText != "Shoutbox") {
+			friends_frame.removeChild(friends_frame.lastChild);
+	};
+}*/
+
+// Placeholder fuction for the logout button.
+function logout() {
+	window.location.href = "../logout.html";
+}
+
+function examine_add_input() {
+	const selected_user = document.getElementById('selected-friend').value;
+	document.getElementById("add-button").disabled =
+	selected_user.length === 0 ||
+	document.querySelector('option[value="' + selected_user + '"]') === null;
+}
+
+function add_friend() {
+	console.log("Add friend");
+	var friend = document.getElementById("selected-friend").value;
+	// AJAX Send message
+	list_friend(friend);
+}
+
+// Recieve a message from the server.
+function list_friend(friend) {
+	// AJAX Get message
+	friends_frame = document.getElementById('friends-frame');
+	friends_frame.insertAdjacentHTML('beforeend', gen_friend_template(friend));
+}
 
 // The "onclick" event when selecting a friend. Based on which friend is selected, that friend's
 // name and the link to their profile picture is stored, then the site repopulated.
@@ -193,7 +243,3 @@ function select_friend(object) {
 }
 
 
-// Placeholder fuction for the logout button.
-function logout() {
-	alert("Logged out");
-}
