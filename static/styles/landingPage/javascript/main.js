@@ -199,21 +199,6 @@ function logout() {
 	window.location.href = "../logout.html";
 }
 
-// Send a message to the server.
-function send_message() {
-	console.log("Send message");
-	var message = document.getElementById("input-field").value;
-	// AJAX Send message
-	recieve_message(message);
-}
-
-// Recieve a message from the server.
-function recieve_message(message) {
-	// AJAX Get message
-	message_frame = document.getElementById('message-frame');
-	message_frame.insertAdjacentHTML('beforeend', gen_message_template(USERNAME, message));
-}
-
 function examine_add_input() {
 	const selected_user = document.getElementById('selected-friend').value;
 	document.getElementById("add-button").disabled =
