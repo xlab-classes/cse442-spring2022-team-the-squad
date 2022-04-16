@@ -9,6 +9,11 @@ h1 {
     font-size: 32px;
 }
 
+h3 {
+    text-align: center;
+    color: blue;
+}
+
 h4 {
     text-align: center;
     color: green;
