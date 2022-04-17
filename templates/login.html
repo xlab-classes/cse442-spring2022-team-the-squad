@@ -9,6 +9,9 @@
 
 <body>
 
+    <!-- Adds a dark mode button to toggle -->
+    <button onclick="darkFunction()">Switch mode</button>
+
     <div class="login">
 
         <h1>LOGIN</h1>
@@ -33,6 +36,10 @@
                 pw_hint_element.style.display = 'block';
             }
 
+            function darkFunction() {
+             var element = document.body;
+             element.classList.toggle("bodyDark");
+            }
 
         </script>
         <form name="accountinfo" action="" method="POST">
