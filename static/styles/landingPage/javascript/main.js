@@ -23,7 +23,7 @@ const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, millise
 // into the chatbox in order to render a new message.
 function gen_message_template(sender, message) {
 	// escape html characters
-	message = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	message = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
 	return `
 		<div class="message">
 			<div class="message-sender">${sender}</div>
