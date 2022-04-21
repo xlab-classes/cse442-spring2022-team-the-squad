@@ -17,6 +17,8 @@ app.config['MYSQL_DATABASE_DB'] = "cse442_2022_spring_team_x_db"
 app.config['MYSQL_DATABASE_HOST'] = "oceanus.cse.buffalo.edu"
 app.config['MYSQL_PORT'] = 3306
 
+app.config['SESSION_PERMANENT'] = True
+
 mysql.init_app(app)
 connection = mysql.connect()
 chatconnection = mysql.connect()
@@ -61,6 +63,7 @@ def login_user():
         flash("No user found with that information")
         return render_template('login.html')
     else:
+        session.permanent = True
         session['username'] = u_username
         return redirect(url_for('landingPage', username=session['username']))
 
