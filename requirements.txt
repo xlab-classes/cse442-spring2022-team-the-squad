@@ -9,3 +9,4 @@ mysqlclient==2.1.0
 PyMySQL==1.0.2
 six @ file:///AppleInternal/BuildRoot/Library/Caches/com.apple.xbs/Sources/python3/python3-103/six-1.15.0-py2.py3-none-any.whl
 Werkzeug==2.0.3
+better_profanity==0.7.0

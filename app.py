@@ -1,6 +1,7 @@
 from stat import FILE_ATTRIBUTE_NO_SCRUB_DATA
 from flask import Flask, flash, render_template, redirect, request, session, url_for
 from flaskext.mysql import MySQL
+from better_profanity import profanity
 import json
 
 # initialize global mySQL connection
@@ -135,6 +136,7 @@ def construct_status(status, location, reason):
 # Used to simulate a write to the SQL database. This is called
 # whenever a client sends a message to the server.
 def add_message_to_database(sender, message, recipient):
+    message = profanity.censor(message)
     chatconnection.ping(reconnect=True)
     cursor = chatconnection.cursor()
     cursor.execute("INSERT INTO messages(sender, message, recipient) VALUES (%s, %s, %s)", (sender, message, recipient))
