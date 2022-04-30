@@ -96,6 +96,10 @@ def create_user():
     connection.commit()
     result = cursor.fetchall()
 
+    if profanity.contains_profanity(u_username):
+                flash("That username is not allowed!")
+                return render_template('register.html')
+
     if len(result) > 0:
         for rows in result:
             if rows[0] == u_email and rows[1] == u_username:     
