@@ -25,7 +25,7 @@ chatconnection = mysql.connect()
 # create tables if they do not exist
 connection.ping(reconnect=True)
 cursor = connection.cursor()
-cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
+cursor.execute("CREATE TABLE IF NOT EXISTS users(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
 cursor.execute("CREATE TABLE IF NOT EXISTS messages(id MEDIUMINT NOT NULL AUTO_INCREMENT, sender VARCHAR(255), message VARCHAR(2048), recipient VARCHAR(255), PRIMARY KEY (id))")
 connection.commit()
 
@@ -102,13 +102,13 @@ def create_user():
 
     if len(result) > 0:
         for rows in result:
-            if rows[0] == u_email and rows[1] == u_username:     
+            if rows[1] == u_email and rows[2] == u_username:     
                 flash("A user with that email and username already exists")
                 return render_template('register.html')
-            if rows[0] == u_email and rows[1] != u_username:
+            if rows[1] == u_email and rows[2] != u_username:
                 flash("A user with that email already exists")
                 return render_template('register.html')
-            if rows[1] == u_username and rows[0] != u_email:
+            if rows[2] == u_username and rows[1] != u_email:
                 flash("A user with that username already exists")
                 return render_template('register.html')
     else:
@@ -193,8 +193,8 @@ def forgot_password():
         #retrieve result from the result's row
         pw_hint = ""
         for rows in result:
-            #flash("Password Hint:", rows[3])
-            pw_hint = rows[3]
+            #flash("Password Hint:", rows[4])
+            pw_hint = rows[4]
         return redirect(url_for('login', hint=pw_hint))
     else:
         flash("No user found with that information")
@@ -219,6 +219,8 @@ def landingPage():
             a_list = []
             for row in result:
                 a_list.append(row[0])
+        else:
+            a_list = []
 
         #code for generating friends list
         connection.ping(reconnect=True)
