@@ -5,6 +5,19 @@
 		<script src="{{ url_for('static',filename='styles/landingPage/javascript/main.js') }}"></script>
 	</head>
 	<body onload="on_load()">
+		<!-- Adds a dark mode button to toggle -->
+		<button onclick="darkFunction()">Switch mode</button>
+
+		<script>
+			function darkFunction() {
+				var element = document.body;
+				var pg = document.getElementById("page");
+				var chatElem = document.getElementById("theme-frame");
+				chatElem.classList.toggle("chatDark");
+				element.classList.toggle("bodyDark");
+				pg.classList.toggle("bodyDark");
+			}
+		</script>
 		<div id="page">
 			<div id="status-frame">
 				<div id="profile-frame">
@@ -66,29 +79,31 @@
 				</div>
 			</div>
 			<div id="chat-frame">
-				<div id="recipient-frame">
-					<div id="recipient-photo">
-						<img src="{{ url_for('static',filename='styles/landingPage/images/profile_pic.png') }}" id="recipient-photo-image">
+				<div id = "theme-frame">
+					<div id="recipient-frame">
+						<div id="recipient-photo">
+							<img src="{{ url_for('static',filename='styles/landingPage/images/profile_pic.png') }}" id="recipient-photo-image">
+						</div>
+						<div id="recipient-name">Recipient</div>
 					</div>
-					<div id="recipient-name">Recipient</div>
-				</div>
-				<div id="message-frame">
-					<div class="message">
-						<div class="message-sender">Message1 Sender: </div>
-						<div class="message-text">Message1 Text.</div>
+					<div id="message-frame">
+						<div class="message">
+							<div class="message-sender">Message1 Sender: </div>
+							<div class="message-text">Message1 Text.</div>
+						</div>
+						<div class="message">
+							<div class="message-sender">Message2 Sender: </div>
+							<div class="message-text">Message2 Text.</div>
+						</div>
+						<div class="message">
+							<div class="message-sender">Message3 Sender: </div>
+							<div class="message-text">Message3 Text.</div>
+						</div>
 					</div>
-					<div class="message">
-						<div class="message-sender">Message2 Sender: </div>
-						<div class="message-text">Message2 Text.</div>
+					<div id="input-frame">
+						<input id="input-field">
+						<div id="send-button" onclick="send_message()">[Send]</div>
 					</div>
-					<div class="message">
-						<div class="message-sender">Message3 Sender: </div>
-						<div class="message-text">Message3 Text.</div>
-					</div>
-				</div>
-				<div id="input-frame">
-					<input id="input-field">
-					<div id="send-button" onclick="send_message()">[Send]</div>
 				</div>
 			</div>
 		</div>
