@@ -99,7 +99,8 @@ function gen_friend_template(friend) {
 // Populates the default information when the page loads.
 function on_load() {
 	const params = new URLSearchParams(window.location.search);
-	USERNAME = params.get("username");
+	USERNAME = document.getElementById('profile-name').innerHTML;
+	//alert(window.location.href);
 
 	/*if (params.get("username") == null) {
 		USERNAME = "Guest";
