@@ -64,7 +64,8 @@ def login_user():
     else:
         session.permanent = True
         session['username'] = u_username
-        return redirect(url_for('landingPage', username=session['username']))
+        #return redirect(url_for('landingPage', username=session['username']))
+        return redirect(url_for('landingPage'))
 
 ###########################
 
@@ -206,6 +207,7 @@ def forgot_password():
 @app.route('/landingPage/index.html', methods=['GET'])
 def landingPage():
     print(request.values)
+    print(session.get("username", None))
     #code for generating add users list
     connection.ping(reconnect=True)
 

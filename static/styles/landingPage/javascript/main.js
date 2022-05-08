@@ -99,7 +99,8 @@ function gen_friend_template(friend) {
 // Populates the default information when the page loads.
 function on_load() {
 	const params = new URLSearchParams(window.location.search);
-	USERNAME = params.get("username");
+	USERNAME = document.getElementById('profile-name').innerHTML;
+	//alert(window.location.href);
 
 	/*if (params.get("username") == null) {
 		USERNAME = "Guest";
@@ -133,6 +134,15 @@ function on_load() {
 		}
 	}
 	sync_messages();
+
+	// Register event listener on the "Send" button. This allows
+	// messages to be sent by pressing the Enter key.
+	submit_button = document.getElementById("input-field");
+	submit_button.addEventListener("keydown", function (event) {
+            if (event.keyCode == 13) {
+		send_message();
+            }
+        });
 }
 
 
