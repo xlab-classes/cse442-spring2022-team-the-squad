@@ -11,7 +11,11 @@
 					<div id="profile-photo">
 						<img src="{{ url_for('static',filename='styles/landingPage/images/chess_rook.png') }}" class="friend-photo-image">
 					</div>
+					{% if session['username'] %}
+						<div id="profile-name">{{ session['username'] }}</div>
+					{% else %}
 					<div id="profile-name">Profile Name</div>
+					{% endif %}
 				</div>
 				<div id="logout-frame">
 					<div id="logout-button" onclick="logout()">[Logout]</div>
