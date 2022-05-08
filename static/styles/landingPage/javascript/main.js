@@ -101,9 +101,10 @@ function on_load() {
 	const params = new URLSearchParams(window.location.search);
 	USERNAME = params.get("username");
 
-	if (params.get("username") == null) {
+	/*if (params.get("username") == null) {
 		USERNAME = "Guest";
 	}
+	*/
 
 	// This needs to be called before the sync_messages "thread" is started.
 	// This is because the populate_values function clears the chat box, and
@@ -143,8 +144,8 @@ function on_load() {
 // the selected friend chat is changed.
 function populate_values() {
 	// Set the profile name
-	profile_name_element = document.getElementById('profile-name');
-	profile_name_element.innerHTML = USERNAME;
+	//profile_name_element = document.getElementById('profile-name');
+	//profile_name_element.innerHTML = USERNAME;
 
 	// Set the recipient name
 	recipient_name_element = document.getElementById('recipient-name');

@@ -24,7 +24,7 @@
         <h1>WELCOME!</h1>
         <br>
         {% if session['username'] %}
-        Hello, {{  request.args.get('username') }}.
+        Hello, {{  session['username'] }}.
         {% endif %}
 
         <div class="centerContainer">
