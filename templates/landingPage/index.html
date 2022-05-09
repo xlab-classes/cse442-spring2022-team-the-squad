@@ -12,8 +12,12 @@
 			function darkFunction() {
 				var element = document.body;
 				var pg = document.getElementById("page");
-				var chatElem = document.getElementById("theme-frame");
-				chatElem.classList.toggle("chatDark");
+				// var chatElem = document.getElementById("chat-frame");
+				var recep = document.getElementById("recipient-frame");
+				var mess = document.getElementById("message-frame");
+				recep.classList.toggle("bodyGrey");
+				mess.classList.toggle("bodyGrey");
+				// chatElem.classList.toggle("chatDark");
 				element.classList.toggle("bodyDark");
 				pg.classList.toggle("bodyDark");
 			}
@@ -82,11 +86,13 @@
 					</form>
 				</div>
 			</div>
-			<div id="chat-frame">
-				<div id = "theme-frame">
+			<!-- <div id="theme-frame"> -->
+				<div id="chat-frame">
+					<!-- <div id = "theme-frame"> -->
 					<div id="recipient-frame">
 						<div id="recipient-photo">
-							<img src="{{ url_for('static',filename='styles/landingPage/images/profile_pic.png') }}" id="recipient-photo-image">
+							<img src="{{ url_for('static',filename='styles/landingPage/images/profile_pic.png') }}"
+								id="recipient-photo-image">
 						</div>
 						<div id="recipient-name">Recipient</div>
 					</div>
@@ -109,7 +115,7 @@
 						<div id="send-button" onclick="send_message()">[Send]</div>
 					</div>
 				</div>
-			</div>
+			<!-- </div> -->
 		</div>
 	</body>
 </html>
