@@ -22,6 +22,8 @@ const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, millise
 // A template for the message html. This template can be inserted
 // into the chatbox in order to render a new message.
 function gen_message_template(sender, message) {
+	// escape html characters
+	message = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
 	return `
 		<div class="message">
 			<div class="message-sender">${sender}</div>
@@ -97,11 +99,13 @@ function gen_friend_template(friend) {
 // Populates the default information when the page loads.
 function on_load() {
 	const params = new URLSearchParams(window.location.search);
-	USERNAME = params.get("username");
+	USERNAME = document.getElementById('profile-name').innerHTML;
+	//alert(window.location.href);
 
-	if (params.get("username") == null) {
+	/*if (params.get("username") == null) {
 		USERNAME = "Guest";
 	}
+	*/
 
 	// This needs to be called before the sync_messages "thread" is started.
 	// This is because the populate_values function clears the chat box, and
@@ -130,6 +134,15 @@ function on_load() {
 		}
 	}
 	sync_messages();
+
+	// Register event listener on the "Send" button. This allows
+	// messages to be sent by pressing the Enter key.
+	submit_button = document.getElementById("input-field");
+	submit_button.addEventListener("keydown", function (event) {
+            if (event.keyCode == 13) {
+		send_message();
+            }
+        });
 }
 
 
@@ -141,8 +154,8 @@ function on_load() {
 // the selected friend chat is changed.
 function populate_values() {
 	// Set the profile name
-	profile_name_element = document.getElementById('profile-name');
-	profile_name_element.innerHTML = USERNAME;
+	//profile_name_element = document.getElementById('profile-name');
+	//profile_name_element.innerHTML = USERNAME;
 
 	// Set the recipient name
 	recipient_name_element = document.getElementById('recipient-name');

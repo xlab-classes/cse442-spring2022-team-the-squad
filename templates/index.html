@@ -9,12 +9,22 @@
 
 <body>
 
+     <!-- Adds a dark mode button to toggle -->
+     <button onclick="darkFunction()">Switch mode</button>
+    
+     <script>
+         function darkFunction() {
+             var element = document.body;
+             element.classList.toggle("bodyDark");
+         }
+     </script>
+
     <div class="login">
 
         <h1>WELCOME!</h1>
         <br>
         {% if session['username'] %}
-        Hello, {{  request.args.get('username') }}.
+        Hello, {{  session['username'] }}.
         {% endif %}
 
         <div class="centerContainer">

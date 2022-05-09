@@ -1,6 +1,7 @@
 from stat import FILE_ATTRIBUTE_NO_SCRUB_DATA
 from flask import Flask, flash, render_template, redirect, request, session, url_for
 from flaskext.mysql import MySQL
+from better_profanity import profanity
 import json
 
 # initialize global mySQL connection
@@ -17,6 +18,8 @@ app.config['MYSQL_DATABASE_DB'] = "cse442_2022_spring_team_x_db"
 app.config['MYSQL_DATABASE_HOST'] = "oceanus.cse.buffalo.edu"
 app.config['MYSQL_PORT'] = 3306
 
+app.config['SESSION_PERMANENT'] = True
+
 mysql.init_app(app)
 connection = mysql.connect()
 chatconnection = mysql.connect()
@@ -24,7 +27,7 @@ chatconnection = mysql.connect()
 # create tables if they do not exist
 connection.ping(reconnect=True)
 cursor = connection.cursor()
-cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
+cursor.execute("CREATE TABLE IF NOT EXISTS users(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
 cursor.execute("CREATE TABLE IF NOT EXISTS messages(id MEDIUMINT NOT NULL AUTO_INCREMENT, sender VARCHAR(255), message VARCHAR(2048), recipient VARCHAR(255), PRIMARY KEY (id))")
 connection.commit()
 
@@ -59,8 +62,10 @@ def login_user():
         flash("No user found with that information")
         return render_template('login.html')
     else:
+        session.permanent = True
         session['username'] = u_username
-        return redirect(url_for('landingPage', username=session['username']))
+        #return redirect(url_for('landingPage', username=session['username']))
+        return redirect(url_for('landingPage'))
 
 ###########################
 
@@ -93,15 +98,19 @@ def create_user():
     connection.commit()
     result = cursor.fetchall()
 
+    if profanity.contains_profanity(u_username):
+                flash("That username is not allowed!")
+                return render_template('register.html')
+
     if len(result) > 0:
         for rows in result:
-            if rows[0] == u_email and rows[1] == u_username:     
+            if rows[1] == u_email and rows[2] == u_username:     
                 flash("A user with that email and username already exists")
                 return render_template('register.html')
-            if rows[0] == u_email and rows[1] != u_username:
+            if rows[1] == u_email and rows[2] != u_username:
                 flash("A user with that email already exists")
                 return render_template('register.html')
-            if rows[1] == u_username and rows[0] != u_email:
+            if rows[2] == u_username and rows[1] != u_email:
                 flash("A user with that username already exists")
                 return render_template('register.html')
     else:
@@ -133,6 +142,7 @@ def construct_status(status, location, reason):
 # Used to simulate a write to the SQL database. This is called
 # whenever a client sends a message to the server.
 def add_message_to_database(sender, message, recipient):
+    message = profanity.censor(message)
     chatconnection.ping(reconnect=True)
     cursor = chatconnection.cursor()
     cursor.execute("INSERT INTO messages(sender, message, recipient) VALUES (%s, %s, %s)", (sender, message, recipient))
@@ -185,8 +195,8 @@ def forgot_password():
         #retrieve result from the result's row
         pw_hint = ""
         for rows in result:
-            #flash("Password Hint:", rows[3])
-            pw_hint = rows[3]
+            #flash("Password Hint:", rows[4])
+            pw_hint = rows[4]
         return redirect(url_for('login', hint=pw_hint))
     else:
         flash("No user found with that information")
@@ -197,6 +207,7 @@ def forgot_password():
 @app.route('/landingPage/index.html', methods=['GET'])
 def landingPage():
     print(request.values)
+    print(session.get("username", None))
     #code for generating add users list
     connection.ping(reconnect=True)
 
@@ -211,6 +222,8 @@ def landingPage():
             a_list = []
             for row in result:
                 a_list.append(row[0])
+        else:
+            a_list = []
 
         #code for generating friends list
         connection.ping(reconnect=True)

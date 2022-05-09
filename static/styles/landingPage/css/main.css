@@ -1,18 +1,43 @@
-html, body {
-	font-size: 14px;
-	height: 99%;
-	width: 99%;
+html {
 	font-family: "Source Code Pro", Mono, Verdana, Arial;
+	font-size: 14px;
+	height: 100vh;
+}
+
+body {
+	height: 100%;
 	background-color: #0093ff;
 }
 
+.bodyDark {
+	background-color: black;
+}
+
+.bodyGrey{
+	background-color: grey
+}
+
+.chatDark {
+	background-color: grey;
+	flex-grow: 1;
+	flex-direction: column;
+	border-radius: 10px;
+}
+
+/* #theme-frame {
+	background-color: white;
+	flex-grow: 1;
+	flex-direction: column;
+	border-radius: 10px;
+} */
+
+/* problem seems to be here */
 #page {
 	position: relative;
-	margin: 0px auto;
+	margin: 0px;
 	display: flex;
 	flex-direction: row;
 	height: 100%;
-	width: 100%;
 }
 
 /* ========== STATUS FRAME =========== */
