@@ -56,7 +56,7 @@ def login_user():
 
     connection.ping(reconnect=True)
     cursor = connection.cursor()
-    cursor.execute("SELECT * from users where username = %s AND PWD = %s", (u_username, u_password))
+    cursor.execute("SELECT * from users where username = %s AND PWD = SHA1(\"%s\")", (u_username, u_password))
     connection.commit()
     result = cursor.fetchall()
 
@@ -99,10 +99,25 @@ def create_user():
     cursor.execute("SELECT * from users where username = %s OR email = %s", (u_username, u_email))
     connection.commit()
     result = cursor.fetchall()
-
+    
     if profanity.contains_profanity(u_username):
                 flash("That username is not allowed!")
                 return render_template('register.html')
+    spec = False
+    cap = False
+    num = False
+    password = u_password
+    for i in range(0, len(password)):
+        if 32 < ord(password[i]) < 48 or 57 < ord(password[i]) < 65 or 90 < ord(password[i]) < 97 or 122 < ord(password[i]) < 127:
+             spec = True
+        if  47 < ord(password[i]) < 58:
+             num = True
+        if 64 < ord(password[i]) < 91:
+             cap = True
+
+    if not (spec and cap and num):
+        flash("Password must contain one capital, one number and one special character.")
+        return render_template('register.html')
 
     if len(result) > 0:
         for rows in result:
@@ -116,10 +131,12 @@ def create_user():
                 flash("A user with that username already exists")
                 return render_template('register.html')
     else:
-        cursor.execute("INSERT INTO users(email, username, pwd, pwdhint) VALUES (%s, %s, %s, %s)", (u_email, u_username, u_password, u_pwdhint))
+        cursor.execute("INSERT INTO users(email, username, pwd, pwdhint) VALUES (%s, %s, SHA1(\"%s\"), %s)", (u_email, u_username, u_password, u_pwdhint))
         connection.commit()
         flash("User successfully added!") #SUCCESSFULLY REGISTER
         return redirect(url_for('login'))
+    
+    
 
 
 ###########################################################################################################################################################################################################
@@ -355,4 +372,4 @@ def add_friend():
 
 if __name__ == '__main__':
     #app.run(host='128.205.32.39', port=7321)
-    app.run(host='0.0.0.0', port=7321)	
+    app.run(host='0.0.0.0', port=7321)
