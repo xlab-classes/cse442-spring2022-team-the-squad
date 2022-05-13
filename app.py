@@ -1,16 +1,17 @@
 from stat import FILE_ATTRIBUTE_NO_SCRUB_DATA
 from flask import Flask, flash, render_template, redirect, request, session, url_for
-
-#changed MySQL connector
 from flaskext.mysql import MySQL
 from better_profanity import profanity
 import json
 
 # initialize global mySQL connection
 app = Flask(__name__, template_folder='templates')
+
 #for sessions
 app.secret_key = "the squad"
+
 mysql = MySQL()
+
 app.config['MYSQL_DATABASE_USER'] = "shawnkop"
 app.config['MYSQL_DATABASE_PASSWORD'] = "50356342"
 app.config['MYSQL_DATABASE_DB'] = "cse442_2022_spring_team_x_db"
@@ -29,7 +30,6 @@ cursor = connection.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS users(id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(255), username VARCHAR(255), pwd VARCHAR(255),  pwdhint VARCHAR(255))")
 cursor.execute("CREATE TABLE IF NOT EXISTS messages(id MEDIUMINT NOT NULL AUTO_INCREMENT, sender VARCHAR(255), message VARCHAR(2048), recipient VARCHAR(255), PRIMARY KEY (id))")
 connection.commit()
-connection = mysql.connect()
 
 #-------------------------------------
 #           -FLASK ROUTING-
@@ -37,7 +37,9 @@ connection = mysql.connect()
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
+
 #######################
+
 @app.route('/login.html', methods=['GET'])
 def login():
     return render_template('login.html')    
@@ -54,9 +56,6 @@ def login_user():
 
     connection.ping(reconnect=True)
     cursor = connection.cursor()
-    cursor.execute("SELECT * from users where username = %s AND PWD = %s", (u_username, u_password))
-
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(email VARCHAR(255), pwd VARCHAR(255), username VARCHAR(255))")
     cursor.execute("SELECT * from users where username = %s AND PWD = SHA1(\"%s\")", (u_username, u_password))
     connection.commit()
     result = cursor.fetchall()
@@ -67,21 +66,24 @@ def login_user():
     else:
         session.permanent = True
         session['username'] = u_username
-        return redirect(url_for('landingPage', username=session['username']))
+        #return redirect(url_for('landingPage', username=session['username']))
+        return redirect(url_for('landingPage'))
 
 ###########################
 
 @app.route('/logout.html')
 def logout_user():
-    print(session['username'])
     if "username" in session:
         session.pop('username', None)
 
     return redirect(url_for('home'))
+
 ###########################
+
 @app.route('/register.html', methods=['GET'])
 def register():
     return render_template('register.html')
+
 #############################
 
 @app.route('/register.html', methods=['POST'])
@@ -97,10 +99,25 @@ def create_user():
     cursor.execute("SELECT * from users where username = %s OR email = %s", (u_username, u_email))
     connection.commit()
     result = cursor.fetchall()
-
+    
     if profanity.contains_profanity(u_username):
                 flash("That username is not allowed!")
                 return render_template('register.html')
+    spec = False
+    cap = False
+    num = False
+    password = u_password
+    for i in range(0, len(password)):
+        if 32 < ord(password[i]) < 48 or 57 < ord(password[i]) < 65 or 90 < ord(password[i]) < 97 or 122 < ord(password[i]) < 127:
+             spec = True
+        if  47 < ord(password[i]) < 58:
+             num = True
+        if 64 < ord(password[i]) < 91:
+             cap = True
+
+        if not (spec and cap and num):
+            flash("Password must contain one capital, one number and one special character.")
+            return render_template('register.html')
 
     if len(result) > 0:
         for rows in result:
@@ -118,35 +135,14 @@ def create_user():
         connection.commit()
         flash("User successfully added!") #SUCCESSFULLY REGISTER
         return redirect(url_for('login'))
+    
+    
 
 
 ###########################################################################################################################################################################################################
 #                                                                                         FLASK  AJAX                                                                                                     #                             
 ###########################################################################################################################################################################################################
 
-    while(True):
-        u_email = request.form['email']
-        u_username = request.form['uname']
-        u_password = request.form['pwd']
-
-
-        spec = False
-        cap = False
-        num = False
-        password = u_password
-        for i in range(0, len(password)):
-            if 32 < ord(password[i]) < 48 or 57 < ord(password[i]) < 65 or 90 < ord(password[i]) < 97 or 122 < ord(password[i]) < 127:
-                spec = True
-            if  47 < ord(password[i]) < 58:
-                num = True
-            if 64 < ord(password[i]) < 91:
-                cap = True
-
-        if not (spec and cap and num):
-            flash("Password must contain one capital, one number and one special character.")
-            return render_template('register.html')
-        else:
-            break
 
 # When an AJAX post request is recieved and there is no data to be sent back,
 # a status post request will be sent. This indicates the success or failure
@@ -194,7 +190,7 @@ def get_messages_since(message_id, user, recipient):
             }
         )
     return final
-
+    
 ###########################################################################################################################################################################################################
 
 
@@ -225,19 +221,16 @@ def forgot_password():
         flash("No user found with that information")
         return render_template('forgotpassword.html')
 
-
-    flash("User successfully added!") #SUCCESSFULLY REGISTER
-    return redirect(url_for('login'))
-
 #############################
 
 @app.route('/landingPage/index.html', methods=['GET'])
 def landingPage():
     print(request.values)
+    print(session.get("username", None))
     #code for generating add users list
     connection.ping(reconnect=True)
 
-
+    
     if "username" in session:
         cursor = connection.cursor()
         cursor.execute("SELECT username from users where username != %s", session["username"])
@@ -322,7 +315,6 @@ def sync_client():
         return json.dumps(return_data)
     return construct_status(1, "Sync failure", "missing \"type\" \"sync\"")
 
-    return render_template('landingPage/index.html')
 
 #############################
 
@@ -338,7 +330,7 @@ def add_friend():
     connection.commit()
     result = cursor.fetchall()
 
-
+    
     #add check to see if they arent already friends
     cursor.execute("SELECT * FROM friends where sender = %s AND receiver = %s", (session["username"], u_receiver))
     connection.commit()
@@ -350,7 +342,7 @@ def add_friend():
         #now create second row with swapped vals
         cursor.execute("INSERT INTO friends(sender, receiver) VALUES (%s, %s)", (u_receiver, session["username"]))
         connection.commit()
-
+    
 
     #code for generating friends list
     cursor.execute("SELECT receiver from friends where sender = %s", session["username"])
@@ -362,7 +354,7 @@ def add_friend():
         f_list = []
         for row in result:
             f_list.append(row[0])
-
+    
     #code for generating add users list
     cursor.execute("SELECT username from users where username != %s", session["username"])
     connection.commit()
@@ -372,12 +364,12 @@ def add_friend():
         a_list = []
         for row in result:
             a_list.append(row[0])
-
+    
     return render_template('landingPage/index.html', friend_list=f_list, add_list=a_list)
-
-
+    
+    
 
 
 if __name__ == '__main__':
     #app.run(host='128.205.32.39', port=7321)
-    app.run(host='0.0.0.0', port=7321)	
+    app.run(host='0.0.0.0', port=7321)
