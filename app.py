@@ -115,9 +115,9 @@ def create_user():
         if 64 < ord(password[i]) < 91:
              cap = True
 
-        if not (spec and cap and num):
-            flash("Password must contain one capital, one number and one special character.")
-            return render_template('register.html')
+    if not (spec and cap and num):
+        flash("Password must contain one capital, one number and one special character.")
+        return render_template('register.html')
 
     if len(result) > 0:
         for rows in result:
