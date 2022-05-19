@@ -8,3 +8,4 @@ MarkupSafe
 mysqlclient
 PyMySQL
 Werkzeug
+better_profanity
